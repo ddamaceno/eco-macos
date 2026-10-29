@@ -5,6 +5,10 @@
 //! package that does not match installs nothing. Also `eco update` and `eco
 //! version` themselves.
 
+// Until macOS has an installer (docs/design.md §15), nothing there downloads
+// a release.
+#![cfg_attr(target_os = "macos", allow(dead_code))]
+
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
@@ -38,9 +42,15 @@ const SILENCE: Duration = Duration::from_secs(30);
 
 /// This platform's installer: the Arch package through pacman on Linux, the
 /// folder install.ps1 fills on Windows.
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 pub fn installer() -> Arc<dyn Installer> {
     Arc::new(crate::adapters::installer_linux::Pacman::new(DOWNLOADS))
+}
+
+/// This platform's installer: none yet on macOS, so an update fails and says why.
+#[cfg(target_os = "macos")]
+pub fn installer() -> Arc<dyn Installer> {
+    Arc::new(crate::adapters::unsupported::Unsupported)
 }
 
 /// This platform's installer: the Arch package through pacman on Linux, the
@@ -51,7 +61,7 @@ pub fn installer() -> Arc<dyn Installer> {
 }
 
 /// Delete what an update moved aside because it was running: on Windows, the
-/// files of the replaced eco; pacman leaves nothing behind on Linux.
+/// files of the replaced eco; nothing is left behind elsewhere.
 #[cfg(unix)]
 pub fn tidy() {}
 

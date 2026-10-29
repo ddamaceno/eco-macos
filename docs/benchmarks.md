@@ -530,3 +530,17 @@ Linux run does not measure. Files whose numbers did not move are not named.
 | `src/installer.rs` | 94.94% (26 of 514) | 94.78% (26 of 498) | as in the update section. The share falls only because its copy of the fake installer, whose lines were covered, gave way to the one in `src/session/update.rs`; no line lost its test. |
 | `src/adapters/installer_linux.rs` | 97.06% (7 of 238) | 97.15% (7 of 246) | as before. |
 | `src/ports.rs` | 70.00% (3 of 10) | 78.57% (3 of 14) | as before. |
+
+## macOS base seams coverage (2026-10-29)
+
+Measured on macOS 27.0.1 (Apple Silicon) with `cargo llvm-cov --summary-only
+--show-missing-lines --bin eco` on the tree that builds eco there: the
+daemon's unit tests, 767 passed. `tests/window.rs` and `tests/overlay.rs`
+need Qt, which no task installs on macOS yet, so they did not run. The
+macOS-only lines are counted here and nowhere else; a Linux run does not
+compile them.
+
+| File | Lines | Left without a test, and why |
+|---|---|---|
+| `src/adapters/unsupported.rs` | 96.61% (4 of 118) | `Notifier::notify` (110–112), which only writes a line to the daemon's stderr. |
+| `src/paths.rs` | as in the daemon section | the public wrappers that read the real environment and home; the macOS layout behind them is tested with a fixed environment. |
